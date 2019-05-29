@@ -1,0 +1,5 @@
+/yubihsm2-sdk
+/venv
+/node_modules
+/build
+.DS_Store
