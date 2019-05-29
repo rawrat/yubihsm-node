@@ -14,8 +14,6 @@ Napi::Object Session::Init(Napi::Env env, Napi::Object exports) {
         InstanceMethod("genKey", &Session::genKey),
         InstanceMethod("addAuthKey", &Session::addAuthKey),
         InstanceMethod("ecdh", &Session::ecdh),
-
-        InstanceMethod("test", &Session::test)
     });
 
     // Create a peristent reference to the class constructor. This will allow
@@ -169,37 +167,6 @@ Napi::Value Session::getKeys(const Napi::CallbackInfo& info) {
     }
     return m;
   });
-}
-
-Napi::Value Session::test(const Napi::CallbackInfo& info) {
-  auto env = info.Env();
-  auto in = info[0].As<Napi::String>();
-  auto s = in.Utf8Value();
-  printf("Received s: %s\n", s.c_str());
-  
-  auto deferred = Napi::Promise::Deferred::New(env);
-  // auto fun = Function::New(env, [&]() {
-  //   printf("My Lambda function was called\n");
-  //   deferred.Resolve(Napi::String::New(info.Env(), s));
-  //   // printf("Resolve was called\n");
-  //   // return Napi::String::New(info.Env(), "OK");
-  // });
-  EchoWorker* wk = new EchoWorker(deferred, [&]() -> MyMap {
-    // HandleScope scope(Env());
-    printf("Ohai Lambda 1\n");
-    // auto obj = Napi::Object::New(Env());
-    printf("Ohai Lambda 2\n");
-    // obj.Set("rofl", "lol");
-    printf("Ohai Lambda 3\n");
-    MyMap my_car {
-      {"make", "Ford"},
-      {"model", "Mustang"},
-      {"year", 1969}
-    };
-    return my_car;
-  });
-  wk->Queue();
-  return deferred.Promise();
 }
 
 Napi::Value Session::addAuthKey(const Napi::CallbackInfo& info) {
