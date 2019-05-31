@@ -4,7 +4,6 @@
       "target_name": "addon",
       "sources": [ 
         "lib/fmt/src/format.cc",
-        "lib/fmt/src/posix.cc",
         "lib/micro-ecc/uECC.c",
         "src/helpers.cpp",
         "src/main.cpp",
