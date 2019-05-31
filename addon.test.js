@@ -11,21 +11,17 @@ const ecdh_auth_key_password = "ecdh_auth_key_password"
 let ecdh_auth_key_id
 let ecdh_key_id
 let ecdh_public_key
-
+let session
 test('addAuthKey', async () => {
-  const session = new Session(config)
+  session = new Session(config)
   const res = await session.addAuthKey("ecdh auth", ecdh_auth_key_password)
   ecdh_auth_key_id = res.key_id
   
-  expect(typeof ecdh_auth_key_id).toBe("number")
-
-  
-  session.close()
+  expect(typeof ecdh_auth_key_id).toBe("number")  
 })
 
 test('genKey', async () => {
   console.log("genKey.config: ", config)
-  const session = new Session(config)
   const res = await session.genKey("ecdh key", ecdh_auth_key_password)
   ecdh_key_id = res.key_id
   ecdh_public_key = res.public_key
@@ -40,14 +36,12 @@ test('genKey', async () => {
 })
 
 test('getPublicKey', async () => {
-  const session = new Session(config)
+  session = new Session(config)
   const pkey = await session.getPublicKey(ecdh_key_id)
   expect(pkey).toBe(ecdh_public_key)
-  session.close()
 })
 
 test('getKeys', async () => {
-  const session = new Session(config)
   const res = await session.getKeys()
   let found = false
   for(const [pkey, key_id] of Object.entries(res)) {
@@ -57,12 +51,10 @@ test('getKeys', async () => {
     }
   }
   expect(found).toBeTruthy()
-  session.close()
 })
 
 
 test('ecdh', async () => {
-  const session = new Session(config)
   const shared_secret = await session.ecdh(ecdh_key_id, "EOS6UqHJB1A58qPS4yUbV1ZNkhETFo6F7bAuhrDXvpEq95Jq94LdC")
   
   expect(shared_secret.length).toBe(32)
