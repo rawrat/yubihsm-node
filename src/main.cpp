@@ -236,14 +236,19 @@ Napi::Value Session::ecdh(const Napi::CallbackInfo& info) {
   return dispatch_async(env, [=]() -> bytes {
     bytes buffer{};
     yh_rc yrc{YHR_GENERIC_ERROR};    
+    
     const auto compressed_pk = abieos::string_to_public_key(pubkey_str);
     uint8_t pubkey[65];
-    
+    memset(pubkey, 0, sizeof(pubkey));
     /* this will only fill the first 64 bytes of pubkey */
     uECC_decompress(compressed_pk.data.data(), pubkey, uECC_secp256k1());
     int valid = uECC_valid_public_key(pubkey, uECC_secp256k1());
     if(!valid) {
       THROW_ASYNC("This is not a valid secp256k1 key");
+    }
+    /* The last byte is our canary */
+    if(pubkey[sizeof(pubkey)-1] != 0) {
+      THROW_ASYNC("uECC_decompress should never fill the buffer with more than 64 bytes. Potential buffer overflow.");
     }
     
     /* 
