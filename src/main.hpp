@@ -3,6 +3,8 @@
 #include "public_key.hpp"
 #include "micro-ecc/uECC.h"
 #include <unordered_map>
+#include <variant>
+#include "taskqueue.hpp"
 
 class Session : public Napi::ObjectWrap<Session> {
   public:
@@ -12,6 +14,7 @@ class Session : public Napi::ObjectWrap<Session> {
     
 
   private:
+    TaskQueue *queue;
     static Napi::FunctionReference constructor;
     yh_session *session = nullptr;
     yh_connector *connector = nullptr;

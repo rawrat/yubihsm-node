@@ -2,6 +2,8 @@
 const { Session } = require('bindings')('addon')
 const eosjs_ecc = require('eosjs-ecc-priveos')
 const usb_connection = "yhusb://"
+
+/* All YubiHSM2's come with a default authkey 1 with password "password" */
 const config = {
   url: usb_connection,
   password: "password",
@@ -59,5 +61,29 @@ test('ecdh', async () => {
   
   expect(shared_secret.length).toBe(32)
   expect(shared_secret instanceof Buffer).toBeTruthy()
+})
+
+test('test parallel execution', async () => {
+  const pk = "EOS6UqHJB1A58qPS4yUbV1ZNkhETFo6F7bAuhrDXvpEq95Jq94LdC"
+  
+  /* If the C++ task queue is not implemented correctly, this will crash */
+  const shared_secrets = await Promise.all([
+    session.ecdh(ecdh_key_id, pk),
+    session.ecdh(ecdh_key_id, pk),
+    session.ecdh(ecdh_key_id, pk),
+    session.ecdh(ecdh_key_id, pk),
+    session.ecdh(ecdh_key_id, pk),
+    session.ecdh(ecdh_key_id, pk),
+    session.ecdh(ecdh_key_id, pk),
+  ])
+  
+  /* All results should be identical */
+  const first = shared_secrets[0]
+  for (const s of shared_secrets) {
+    expect(s).toEqual(first)
+  }
+  
+  /* This is the final test, close session */
   session.close()
 })
+

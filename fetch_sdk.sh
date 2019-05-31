@@ -1,4 +1,5 @@
 #!/bin/sh -e
+export npm_config_python=python2.7
 
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
   echo "Linux not implemented yet"

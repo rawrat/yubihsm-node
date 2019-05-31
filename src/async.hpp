@@ -1,20 +1,13 @@
+#pragma once
 #include<napi.h>
 
-#include <chrono>
-#include <thread>
 #include <functional>
 #include <unordered_map>
-#include <any>
-#include <iostream>
 #include <variant>
+#include "types.hpp"
 using namespace Napi;
 
 typedef Promise::Deferred Deferred;
-
-typedef std::vector<uint8_t> bytes;
-typedef std::variant<int, std::string> MyAny;
-typedef std::unordered_map<MyAny, MyAny> MyMap;
-typedef std::variant<MyMap, std::string, bytes> MyReturnType;
 
 class PromiseWorker: public AsyncWorker {
     private:
@@ -46,8 +39,8 @@ Reference< Function > PromiseWorker::fake_callback;
 
 class EchoWorker : public PromiseWorker {
     public:
-        EchoWorker(Deferred const & d, std::function<MyReturnType()> fun)
-        : PromiseWorker(d), fun(fun) {}
+        EchoWorker(Deferred const & d, const MyTask &fun, std::function<void()> finished_callback)
+        : PromiseWorker(d), fun(fun), finished_callback(finished_callback) {}
 
         ~EchoWorker() {}
 
@@ -96,24 +89,16 @@ class EchoWorker : public PromiseWorker {
         }
         deferred.Resolve(obj);
       }
+      this->finished_callback();
+    }
+    
+    void OnError( Error const & error ) {
+      PromiseWorker::OnError(error);
+      this->finished_callback();
     }
 
     private:
-        std::function<MyReturnType()> fun;
+        MyTask fun;
         MyReturnType result;
+        std::function<void()> finished_callback;
 };
-
-/*
- * Returns a promise immediately (non-blocking). Takes a lambda as a second 
- * argument.
- * Resolves the promise with the result of the lambda once it's finished. 
- * The lambda is being executed in a separate thread.
- * The lambda must return either a std::string, bytes or a MyMap.
- * MyMap is a std::unordered_map<MyAny, MyAny> (see typedef above).
- */
-Promise dispatch_async(const Env &env, const std::function<MyReturnType()> &fun) {
-  auto deferred = Promise::Deferred::New(env);
-  EchoWorker* wk = new EchoWorker(deferred, fun);
-  wk->Queue();
-  return deferred.Promise();
-}

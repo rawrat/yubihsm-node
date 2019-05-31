@@ -3,6 +3,7 @@
  */
 #include "main.hpp"
 #include "async.hpp"
+#include "taskqueue.hpp"
 
 Napi::Object Session::Init(Napi::Env env, Napi::Object exports) {
     // This method is used to hook the accessor and method callbacks
@@ -50,12 +51,13 @@ Session::Session(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Session>(inf
       THROW(env, "yh_string_to_domains failed: {}", yh_strerror(yrc)); 
     }
     
-    
+    this->queue = new TaskQueue();
     this->open(info);
 }
 
 Session::~Session(){
   this->close_session();
+  delete this->queue;
 }
 
 Napi::FunctionReference Session::constructor;
@@ -64,7 +66,7 @@ void Session::close_session() {
   if(this->session) {
     yh_util_close_session(this->session);
     yh_destroy_session(&this->session);
-    session = nullptr;
+    this->session = nullptr;
   }
     
   if(this->connector) {
@@ -129,7 +131,7 @@ Napi::Value Session::getPublicKey(const Napi::CallbackInfo& info) {
     NAPI_THROW(Napi::TypeError::New(env, "Wrong arguments"));
   } 
   const auto key_id = static_cast<uint16_t>(info[0].As<Napi::Number>().Uint32Value());
-  return dispatch_async(env, [=]() -> std::string {
+  return this->queue->add(env, [=]() -> std::string {
     const auto pk_string = get_public_key(this->session, key_id);
     return pk_string;
   });
@@ -137,7 +139,7 @@ Napi::Value Session::getPublicKey(const Napi::CallbackInfo& info) {
 
 Napi::Value Session::getKeys(const Napi::CallbackInfo& info) {
   const auto env = info.Env();
-  return dispatch_async(env, [=]() -> MyMap {
+  return this->queue->add(env, [=]() -> MyMap {
     MyMap m{};
     yh_rc yrc{YHR_GENERIC_ERROR};
     
@@ -173,7 +175,7 @@ Napi::Value Session::addAuthKey(const Napi::CallbackInfo& info) {
   const auto env = info.Env();
   const auto key_label = info[0].As<Napi::String>().Utf8Value();
   const auto password = info[1].As<Napi::String>().Utf8Value();
-  return dispatch_async(env, [=]() -> MyMap {
+  return this->queue->add(env, [=]() -> MyMap {
     MyMap m{};
     yh_rc yrc = YHR_GENERIC_ERROR;
     yh_capabilities capabilities = {{0}};
@@ -205,7 +207,7 @@ Napi::Value Session::genKey(const Napi::CallbackInfo& info) {
   // ...
   const auto key_label = info[0].As<Napi::String>().Utf8Value();
   
-  return dispatch_async(env, [=]() -> MyMap {
+  return this->queue->add(env, [=]() -> MyMap {
     MyMap m{};
     yh_rc yrc = YHR_GENERIC_ERROR;
     yh_capabilities capabilities = {{0}};
@@ -233,7 +235,7 @@ Napi::Value Session::ecdh(const Napi::CallbackInfo& info) {
   const auto key_id = static_cast<uint16_t>(info[0].As<Napi::Number>().Uint32Value());
   const auto pubkey_str = info[1].As<Napi::String>().Utf8Value();
 
-  return dispatch_async(env, [=]() -> bytes {
+  return this->queue->add(env, [=]() -> bytes {
     bytes buffer{};
     yh_rc yrc{YHR_GENERIC_ERROR};    
     
