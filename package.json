@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "bindings": "^1.5.0",
+    "eosjs-ecc-priveos": "^4.0.5",
     "nan": "^2.14.0",
     "node-addon-api": "^1.6.3"
   }
