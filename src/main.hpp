@@ -24,8 +24,8 @@ class Session : public Napi::ObjectWrap<Session> {
     uint16_t domain;
 
     // JS-exposed functions
-    void open(const Napi::CallbackInfo &info);
-    void close(const Napi::CallbackInfo &info);
+    Napi::Value open(const Napi::CallbackInfo &info);
+    Napi::Value close(const Napi::CallbackInfo &info);
     Napi::Value getPublicKey(const Napi::CallbackInfo& info);
     Napi::Value getKeys(const Napi::CallbackInfo& info);
     Napi::Value genKey(const Napi::CallbackInfo& info);

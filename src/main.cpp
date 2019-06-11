@@ -52,7 +52,6 @@ Session::Session(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Session>(inf
     }
     
     this->queue = new TaskQueue();
-    this->open(info);
 }
 
 Session::~Session(){
@@ -75,51 +74,57 @@ void Session::close_session() {
   }
   yh_exit();
 }
-void Session::close(const Napi::CallbackInfo &info) {
-  this->close_session();
+
+Napi::Value Session::close(const Napi::CallbackInfo &info) {
+  auto env = info.Env();
+  return this->queue->add(env, [=]() -> MyReturnType {
+    this->close_session();
+    return "ok";
+  });
 }
 
-void Session::open(const Napi::CallbackInfo &info) {
+Napi::Value Session::open(const Napi::CallbackInfo &info) {
   auto env = info.Env();
-  this->close_session();
-  yh_rc yrc{YHR_GENERIC_ERROR};
+  return this->queue->add(env, [=]() -> MyReturnType {
+    this->close_session();
+    yh_rc yrc{YHR_GENERIC_ERROR};
+      
+    yrc = yh_init();
+    if(yrc != YHR_SUCCESS) {
+      THROW_ASYNC("yh_init failed: {}", yh_strerror(yrc));
+    }
+
+    // printf("Trying to connect to: \"%s\"\n", this->url.c_str());
+    yrc = yh_init_connector(this->url.c_str(), &this->connector);
+    if(yrc != YHR_SUCCESS) {
+      THROW_ASYNC("yh_init_connector failed: {}", yh_strerror(yrc));
+    }
+
+    yrc = yh_connect(connector, 0);
+    if(yrc != YHR_SUCCESS) {
+      THROW_ASYNC("yh_connect failed: {}", yh_strerror(yrc));
+    }
+
+    yrc = yh_create_session_derived(connector, this->authkey, (const uint8_t *)this->password.c_str(),
+                                    this->password.size(), false, &this->session);
+    if(yrc != YHR_SUCCESS) {
+      THROW_ASYNC("yh_create_session_derived failed: {}", yh_strerror(yrc));
+    }
+
+    yrc = yh_authenticate_session(this->session);
+    if(yrc != YHR_SUCCESS) {
+      printf("yh_authenticate_session failed\n");
+      THROW_ASYNC("yh_authenticate_session: {}", yh_strerror(yrc));
+    }
     
-  yrc = yh_init();
-  if(yrc != YHR_SUCCESS) {
-    THROW(env, "yh_init failed: {}", yh_strerror(yrc));
-  }
-
-  // printf("Trying to connect to: \"%s\"\n", this->url.c_str());
-  yrc = yh_init_connector(this->url.c_str(), &this->connector);
-  if(yrc != YHR_SUCCESS) {
-    THROW(env, "yh_init_connector failed: {}", yh_strerror(yrc));
-  }
-
-  yrc = yh_connect(connector, 0);
-  if(yrc != YHR_SUCCESS) {
-    THROW(env, "yh_connect failed: {}", yh_strerror(yrc));
-  }
-
-  yrc = yh_create_session_derived(connector, this->authkey, (const uint8_t *)this->password.c_str(),
-                                  this->password.size(), false, &this->session);
-  if(yrc != YHR_SUCCESS) {
-    THROW(env, "yh_create_session_derived failed: {}", yh_strerror(yrc));
-  }
-
-  yrc = yh_authenticate_session(this->session);
-  if(yrc != YHR_SUCCESS) {
-    printf("yh_authenticate_session failed\n");
-    THROW(env, "yh_authenticate_session: {}", yh_strerror(yrc));
-  }
-  
-  uint8_t session_id;
-  yrc = yh_get_session_id(this->session, &session_id);
-  if(yrc != YHR_SUCCESS) {
-    THROW(env, "yh_get_session_id: {}", yh_strerror(yrc));
-  }
-
-  // printf("Successfully established session %02d\n", session_id);
-  
+    uint8_t session_id;
+    yrc = yh_get_session_id(this->session, &session_id);
+    if(yrc != YHR_SUCCESS) {
+      THROW_ASYNC("yh_get_session_id: {}", yh_strerror(yrc));
+    }
+    MyMap m{};
+    return m;
+  });
 }
 
 Napi::Value Session::getPublicKey(const Napi::CallbackInfo& info) {
