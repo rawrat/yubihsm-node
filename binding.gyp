@@ -22,7 +22,10 @@
             "<(module_root_dir)/yubihsm2-sdk/lib",
         ],
       },
-      'dependencies': ["<!(node -p \"require('node-addon-api').gyp\")"],
+      'dependencies': [
+        "<!(node -p \"require('node-addon-api').gyp\")",
+        "fetch_sdk",
+        ],
       'cflags!': [ '-fno-exceptions' ],
       'cflags_cc!': [ '-fno-exceptions' ],
       'cflags_cc': [
@@ -49,6 +52,17 @@
           }
         ],
       ],
+    },
+    {
+      "target_name": "fetch_sdk",
+      "actions": [{
+          "action_name": "fetch_sdk",
+          "inputs": [],
+          "outputs": ['<(module_root_dir)/yubihsm2-sdk'],
+          "action": [
+              "./fetch_sdk.sh"
+          ]
+      }]
     }
   ]
 }
