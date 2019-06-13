@@ -25,6 +25,7 @@ class TaskQueue {
       auto deferred = Napi::Promise::Deferred::New(env);      
       const auto finished_callback = [&]() {this->finished();};
       this->queue.push_back([=]() {
+        /* The EchoWorker destructs itself once the task is finished. No need to manually release memory */
         EchoWorker* wk = new EchoWorker(deferred, task, finished_callback);
         wk->Queue();
       });
