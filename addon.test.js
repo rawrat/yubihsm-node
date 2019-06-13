@@ -16,6 +16,7 @@ let ecdh_public_key
 let session
 test('addAuthKey', async () => {
   session = new Session(config)
+  await session.open()
   const res = await session.addAuthKey("ecdh auth", ecdh_auth_key_password)
   ecdh_auth_key_id = res.key_id
   
@@ -34,11 +35,12 @@ test('genKey', async () => {
   /* We're using this new auth key for the upcoming tests */
   config.authkey = ecdh_auth_key_id
   config.password = ecdh_auth_key_password
-  session.close()
+  await session.close()
 })
 
 test('getPublicKey', async () => {
   session = new Session(config)
+  await session.open()
   const pkey = await session.getPublicKey(ecdh_key_id)
   expect(pkey).toBe(ecdh_public_key)
 })
@@ -84,6 +86,6 @@ test('test parallel execution', async () => {
   }
   
   /* This is the final test, close session */
-  session.close()
+  await session.close()
 })
 

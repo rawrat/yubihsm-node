@@ -15,6 +15,7 @@ async function main() {
   
   const ecdh_key_id = 22096
   const session = new Session(config)
+  await session.open()
   try {
     // const keys = await session.getKeys()
     const a = performance.now()
