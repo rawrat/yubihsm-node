@@ -22,3 +22,6 @@ npm install
 
 ## Usage
 Please see `addon.test.js` for usage examples.
+
+## Limitations
+It only exposes a subset of features to javascript. It is currently hard-coded to use the secp256k1 elliptic curve and the EOSIO public key format. It could easily be extended to work with different elliptic curves and different public key formats.
