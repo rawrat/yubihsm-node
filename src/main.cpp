@@ -15,6 +15,7 @@ Napi::Object Session::Init(Napi::Env env, Napi::Object exports) {
         InstanceMethod("genKey", &Session::genKey),
         InstanceMethod("addAuthKey", &Session::addAuthKey),
         InstanceMethod("ecdh", &Session::ecdh),
+        InstanceMethod("ecdh2", &Session::ecdh2),
     });
 
     // Create a peristent reference to the class constructor. This will allow
@@ -278,6 +279,41 @@ Napi::Value Session::ecdh(const Napi::CallbackInfo& info) {
       key_id, 
       pubkey, 
       sizeof(pubkey),
+      buffer.data(),
+      &secret_len
+    );
+    if(yrc != YHR_SUCCESS) {
+      THROW_ASYNC("yh_util_derive_ecdh failed: {}", yh_strerror(yrc));
+    }
+    if(secret_len != buffer.size()) {
+      THROW_ASYNC("yh_util_derive_ecdh: buffer size mismatch, this should not be possible");
+    }
+    return buffer;
+  });
+}
+
+/* Alternative implementation that works with uncompressed public keys */
+Napi::Value Session::ecdh2(const Napi::CallbackInfo& info) {
+  const auto env = info.Env();
+  const auto key_id = static_cast<uint16_t>(info[0].As<Napi::Number>().Uint32Value());
+  const auto pubkey_napi = info[1].As<Napi::Buffer<uint8_t>>();
+  bytes pubkey{};
+  pubkey.resize(pubkey_napi.Length());
+  memcpy(pubkey.data(), pubkey_napi.Data(), pubkey.size());
+
+  return this->queue->add(env, [=]() -> bytes {
+    bytes buffer{};
+    yh_rc yrc{YHR_GENERIC_ERROR};    
+    
+    /* The shared secret for curve secp256k1 is always 32 bytes */
+    size_t secret_len{32};
+    buffer.resize(secret_len);
+    
+    yrc = yh_util_derive_ecdh(
+      this->session, 
+      key_id, 
+      pubkey.data(), 
+      pubkey.size(),
       buffer.data(),
       &secret_len
     );

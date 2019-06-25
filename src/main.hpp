@@ -31,6 +31,7 @@ class Session : public Napi::ObjectWrap<Session> {
     Napi::Value genKey(const Napi::CallbackInfo& info);
     Napi::Value addAuthKey(const Napi::CallbackInfo& info);
     Napi::Value ecdh(const Napi::CallbackInfo& info);
+    Napi::Value ecdh2(const Napi::CallbackInfo& info);
 
     Napi::Value test(const Napi::CallbackInfo& info);
 
