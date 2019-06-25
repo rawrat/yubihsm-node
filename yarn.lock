@@ -28,6 +28,11 @@ bs58@^4.0.1:
   dependencies:
     base-x "^3.0.2"
 
+buffer-from@^1.0.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
+  integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
+
 cipher-base@^1.0.1, cipher-base@^1.0.3:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/cipher-base/-/cipher-base-1.0.4.tgz#8760e4ecc272f4c363532f926d874aae2c1397de"
@@ -35,6 +40,11 @@ cipher-base@^1.0.1, cipher-base@^1.0.3:
   dependencies:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
+
+commander@^2.19.0:
+  version "2.20.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.0.tgz#d58bb2b5c1ee8f87b0d340027e9e94e222c5a422"
+  integrity sha512-7j2y+40w61zy6YC2iRNpUe/NwhNyoXrYpHMrSunaMG64nRnaf96zO/KMQR4OyN/UnE5KLyEBnKHd4aG3rskjpQ==
 
 create-hash@^1.1.0, create-hash@^1.1.3:
   version "1.2.0"
@@ -67,10 +77,10 @@ ecurve@^1.0.5:
     bigi "^1.1.0"
     safe-buffer "^5.0.1"
 
-eosjs-ecc-priveos@^4.0.5:
-  version "4.0.5"
-  resolved "https://registry.yarnpkg.com/eosjs-ecc-priveos/-/eosjs-ecc-priveos-4.0.5.tgz#6b1c7128bee12731e20afb8286152d29ca6b1eb0"
-  integrity sha512-enz6deUOdq44OPf5cuMrCM9WaduvzaZ+Z7hxaAvbkxT3n6x5EUmCOWe3WLZDjpBUokmUSC9xrFwrJLMu9z8idQ==
+eosjs-ecc-priveos@^4.0.6:
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/eosjs-ecc-priveos/-/eosjs-ecc-priveos-4.0.7.tgz#54f74d58e3f1321ffd0d1a1046e3e2d60a48c159"
+  integrity sha512-6c766jp3/97/WL1tB56jjOreZvdB3a4INrPlP/w09nbZP8Qhur29CRBvqbnLEV9B0EJWzsPVzgviN6MAbm6k5w==
   dependencies:
     bigi "^1.4.2"
     bs58 "^4.0.1"
@@ -78,6 +88,7 @@ eosjs-ecc-priveos@^4.0.5:
     create-hmac "^1.1.6"
     ecurve "^1.0.5"
     randombytes "^2.0.5"
+    terser "^4.0.0"
     tweetnacl "^1.0.1"
 
 file-uri-to-path@1.0.0:
@@ -94,9 +105,9 @@ hash-base@^3.0.0:
     safe-buffer "^5.0.1"
 
 inherits@^2.0.1:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
-  integrity sha1-Yzwsg+PaQqUC9SRmAiSA9CCCYd4=
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
+  integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
 md5.js@^1.3.4:
   version "1.3.5"
@@ -144,6 +155,28 @@ sha.js@^2.4.0, sha.js@^2.4.8:
   dependencies:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
+
+source-map-support@~0.5.10:
+  version "0.5.12"
+  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.12.tgz#b4f3b10d51857a5af0138d3ce8003b201613d599"
+  integrity sha512-4h2Pbvyy15EE02G+JOZpUCmqWJuqrs+sEkzewTm++BPi7Hvn/HwcqLAcNxYAyI0x13CpPPn+kMjl+hplXMHITQ==
+  dependencies:
+    buffer-from "^1.0.0"
+    source-map "^0.6.0"
+
+source-map@^0.6.0, source-map@~0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
+  integrity sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
+
+terser@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-4.0.0.tgz#ef356f6f359a963e2cc675517f21c1c382877374"
+  integrity sha512-dOapGTU0hETFl1tCo4t56FN+2jffoKyER9qBGoUFyZ6y7WLoKT0bF+lAYi6B6YsILcGF3q1C2FBh8QcKSCgkgA==
+  dependencies:
+    commander "^2.19.0"
+    source-map "~0.6.1"
+    source-map-support "~0.5.10"
 
 tweetnacl@^1.0.1:
   version "1.0.1"
