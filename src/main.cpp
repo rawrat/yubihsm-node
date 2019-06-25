@@ -254,10 +254,11 @@ Napi::Value Session::ecdh(const Napi::CallbackInfo& info) {
     if(!valid) {
       THROW_ASYNC("This is not a valid secp256k1 key");
     }
-    /* The last byte is our canary */
-    if(pubkey[sizeof(pubkey)-1] != 0) {
-      THROW_ASYNC("uECC_decompress should never fill the buffer with more than 64 bytes. Potential buffer overflow.");
-    }
+    /* The last byte is our canary 
+     * uECC_decompress should never fill the buffer with more than 64 bytes. 
+     * Potential buffer overflow.
+     */
+    assert(pubkey[sizeof(pubkey)-1] == 0);
     
     /* 
      * uECC public keys are missing the 0x04 prefix that 
@@ -285,9 +286,7 @@ Napi::Value Session::ecdh(const Napi::CallbackInfo& info) {
     if(yrc != YHR_SUCCESS) {
       THROW_ASYNC("yh_util_derive_ecdh failed: {}", yh_strerror(yrc));
     }
-    if(secret_len != buffer.size()) {
-      THROW_ASYNC("yh_util_derive_ecdh: buffer size mismatch, this should not be possible");
-    }
+    assert(secret_len == buffer.size());
     return buffer;
   });
 }
@@ -320,9 +319,7 @@ Napi::Value Session::ecdh2(const Napi::CallbackInfo& info) {
     if(yrc != YHR_SUCCESS) {
       THROW_ASYNC("yh_util_derive_ecdh failed: {}", yh_strerror(yrc));
     }
-    if(secret_len != buffer.size()) {
-      THROW_ASYNC("yh_util_derive_ecdh: buffer size mismatch, this should not be possible");
-    }
+    assert(secret_len == buffer.size());
     return buffer;
   });
 }
